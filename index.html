@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>Nursing SimLab</title>
+    <link rel="stylesheet" href="style.css" type="text/css"> 
+    <script src="js/modernizr.min.js" type="text/javascript"></script>
+    <script src="js/jquery.min.js" type="text/javascript"></script>
+    <script src="js/bootstrap.js" type="text/javascript"></script>
+    <script src="js/highlight/highlight.pack.js" type="text/javascript"></script>    
+    <script src="js/app.js" type="text/javascript"></script>
+    <script type="text/javascript" src="//player.wowza.com/player/latest/wowzaplayer.min.js"></script>
+
+    <script>
+        $(function(){
+        var streamParams    = {};
+        var hostName        = 'simlab-nursing.messiah.edu';
+        var application     = 'Simlabs-Nursing';
+        var defServer       = '_defaultServer_';
+        var defInstance     = '_definst_';
+        var defVHost        = '_defaultVHost_';
+        var defPort         = 8087;
+        var outputPath      = '/usr/local/WowzaStreamingEngine/content';
+        var counter         = 0;
+        var userName        = '';
+        var result          = {};
+        var streamInfo      = {}; // Current list of streams and status from server
+        var lablist         = 'lablist.json';
+        var classlist       = 'classes.json';
+        controlCamera = function (params){
+            // region check_params
+            if (params.hostName === undefined){
+                params.hostName = hostName;
+            }
+            if (params.requestType === undefined){
+                alert ("requestType parameter must be supplied");
+            }
+            if (params.application === undefined){
+                params.application = application;
+            }
+            if (params.serverName === undefined){
+                params.serverName = defServer;
+            }
+            if (params.instanceName === undefined){
+                params.instanceName = defInstance;
+            }
+            if (params.vhostName === undefined){
+                params.vhostName = defVHost;
+            }
+            if (params.port === undefined){
+                params.port = defPort;
+            }
+            if (params.outputPath === undefined){
+                params.outputPath = outputPath;
+            }
+            // endregion check_params
+
+            // Build required Wowza input
+            var streamParams    = {};
+            var url             = ''; // Wowza REST URL
+            var HTTPMethod      = '';
+            var action          = ''; // REST action
+            if (params.requestType == 'startRecord'){
+                
+                streamParams["serverName"] = params.serverName;
+                streamParams["appName"] = params.application;
+                streamParams["vhostName"] = params.vhostName;
+                streamParams["instanceName"] = params.instanceName;
+                streamParams["timeScale"] = 0;
+                streamParams["recorderName"] = params.recorder;
+                streamParams["outputPath"] = params.outputPath;
+                streamParams["recordData"] = 1;
+                streamParams["recorderErrorString"] = "";
+                streamParams["baseFile"] = $.now()+params.userName+".mp4";
+                console.log (streamParams["baseFile"]);
+                streamParams["segmentDuration"] = 0;
+                streamParams["fileTemplate"] = "";
+                streamParams["segmentationType"] = "";
+                streamParams["fileFormat"] = "MP4";
+                streamParams["option"] = "";
+                streamParams.action = "streamrecorders";
+                HTTPMethod = 'POST'
+                url = "http://"+ params.hostName +":"+ params.port +"/v2/servers/"+ params.serverName;
+                url += "/vhosts/"+ params.vhostName +"/applications/"+ params.application;
+                url += "/instances/"+ params.instanceName + "/" + streamParams.action;
+                url += "/"+ params.recorder;
+                var progress = 1;
+                wowzaConnect (streamParams, url, HTTPMethod, progress).done(function(data){
+                    $("body").css("cursor","default");
+                    if (data.message == "Recorder Created"){
+                        // Update matching button
+                        matchable_id = params.recorder.split('.',1) +"_btn";
+                        setRecordButton(matchable_id);
+                    }
+                });
+                
+
+            } else if (params.requestType == 'checkRecord'){
+                // Get a list of active streams
+
+                // Build parameters for ajax
+                streamParams["serverName"] = params.serverName;                    
+                streamParams["appName"] = params.application;
+                streamParams["vhostName"] = params.vhostName;
+                streamParams["instanceName"] = params.instanceName;
+                HTTPMethod = 'GET';
+                url  = "http://"+ params.hostName +":"+ params.port +"/v2/servers/"+ params.serverName +"/vhosts/";
+                url += params.vhostName +"/applications/"+ params.application +"/instances/"+ params.instanceName;
+                return $.when (wowzaConnect (streamParams,url,HTTPMethod))
+                .done (function (data){
+                    $.each (data.incomingStreams, function (results){
+                        if (!(this.isRecordingSet) && this.isConnected){
+                            streamInfo[this.name] = "connected";
+                        } 
+                        else if (!(this.isConnected)){
+                            streamInfo[this.name] = "disconnected";
+                        }
+                    });
+                    
+                    $.each (data.recorders, function (){
+                        streamInfo[this.recorderName] = "recording";
+                    });
+                });
+                console.log (streamInfo);
+                
+                // Post indicators for which streams are recording
+                // Ensure that an already redoring stream cannot be selected for new recording
+
+            // Get status for a specific incoming stream
+            } else if (params.requestType == 'streamCheck'){
+
+                // Build parameters for ajax
+                streamParams["serverName"] = params.serverName;                    
+                streamParams["appName"] = params.application;
+                streamParams["vhostName"] = params.vhostName;
+                streamParams["instanceName"] = params.instanceName;
+                streamParams["streamName"] = params.recorder;
+                HTTPMethod = 'GET';
+                action = 'incomingstreams'
+                url = "http://"+ params.hostName +":"+ params.port +"/v2/servers/"+ params.serverName +"/vhosts/"+
+                    params.vhostName +"/applications/"+ params.application +"/instances/"+ 
+                    params.instanceName +"/"+ action +"/"+ params.recorderName;
+                $.when (wowzaConnect (streamParams, url, HTTPMethod))
+                .promise ()
+                .done ( function (data){
+                    result = data;
+                });
+                return result;
+            } else if (params.requestType == 'stopRecord'){
+                streamParams["serverName"] = params.serverName;
+                streamParams["appName"] = params.application;
+                streamParams["vhostName"] = params.vhostName;
+                streamParams["instanceName"] = params.instanceName;
+                streamParams["recorderName"] = params.recorder;
+                streamParams.action = "streamrecorders";
+                HTTPMethod = 'PUT'
+                url = "http://"+ params.hostName +":"+ params.port +"/v2/servers/"+ params.serverName;
+                url += "/vhosts/"+ params.vhostName +"/applications/"+ params.application;
+                url += "/instances/"+ params.instanceName + "/streamrecorders/" + params.recorder;
+                url += "/actions/stopRecording";
+
+                $.ajax ({
+                    url: url,
+                    type: HTTPMethod,
+                    headers: {
+                        'Accept':'application/json; charset=utf-8'
+                    },
+                    dataType: "json",   
+                })
+                .done (function(data){
+                });
+                
+
+            }
+        }
+
+        // Navigation window actions
+        openNav = function() {
+            document.getElementById("myNav").style.width = "40%";
+            document.getElementById("myNav").style.height = "80%";
+        }
+        
+        closeNav = function() {
+            document.getElementById("myNav").style.width = "0%";
+            document.getElementById("myNav").style.height = "0%";
+        }
+
+        // Take REST request info, contact the server and get a result
+        wowzaConnect = function (streamParams, url, HTTPMethod, progress){
+            console.log ("Connecting to Wowza");
+            if (progress === 1){ 
+                console.log("setting cursor");
+                $("body").css("cursor","progress");
+            }
+            jsonParams = JSON.stringify (streamParams);
+            return $.ajax({
+            url: url,
+            method: HTTPMethod,
+            headers: {
+                'Accept':'application/json; charset=utf-8',
+                'Content-Type':'application/json' 
+            },
+            datatype: "json",
+            data: jsonParams
+            });
+        }
+        // Add and remove video stream windows
+        setStream = function (setStreamOptions){
+
+            // Check if source is active
+            var cameraOptions = {
+                requestType: 'streamCheck',
+                recorderName: setStreamOptions.recorder
+            }
+            var check = controlCamera (cameraOptions);
+
+            // Create control div
+            var shortName = setStreamOptions.recorder.split('.',1);
+            var style_mod = '';
+            var control_name = shortName[0]+"_control";
+            var player_name = shortName[0]+"_player";
+            if (counter > 3){
+                alert ("Only four cameras per page supported");
+                return ;
+            }
+            var controlDiv = '<div class="control" id="'+ control_name +'"></div>';
+
+            // Create player div
+            var playerDiv = '<div class="player" id="'+ player_name +'"></div>';
+            var playerOptions = {};
+            playerOptions.license       = "PLAY1-7ZDzB-Td9f3-6ydCH-bQMbK-K7pDv";
+            playerOptions.title         = shortName[0];
+            playerOptions.description   = "description";
+            playerOptions.sourceURL     = "https://"+ hostName +":1935/"+ application +"/"+ setStreamOptions.recorder +"/playlist.m3u8";
+
+            
+            // Build record button
+            var record_button_id = shortName[0] + '_btn';
+            var recordButton = '<button id="'+ record_button_id + '" ';
+            recordButton    += 'class="recordButton"';
+            recordButton    += 'onclick= \'controlCamera({username: "'+userName+'",';
+            recordButton    += 'recorder: "'+ setStreamOptions.recorder +'",';
+            recordButton    += 'requestType: "startRecord",';
+            recordButton    += 'userName: "'+ userName +'",';
+            recordButton    += 'application: "'+ application +'"})\'>';
+            recordButton    += 'Record '+ shortName[0] +'</button>';
+
+            var stop_record_button_id = record_button_id + '_stop';
+            var stop_record_button   = '<button id="'+ stop_record_button_id + '" ';
+            stop_record_button      += 'class="stopRecordButton"';
+            stop_record_button      += 'onclick= \'controlCamera({recorder: "'+ setStreamOptions.recorder +'",';
+            stop_record_button      += 'requestType: "stopRecord",';
+            stop_record_button      += 'application: "'+ application +'"})\'>';
+            stop_record_button      += 'Stop Recording '+ shortName[0] +'</button>';
+
+            var append_record_button_id = record_button_id + '_append';
+            var append_record_button     = '<button id="'+ append_record_button_id +'" ';
+            append_record_button        += 'class="appendRecordButton"';
+            append_record_button        += 'onclick= \'controlCamera({recorder: "'+ setStreamOptions.recorder +'",';
+            append_record_button        += 'requestType: "appendRecord",';
+            append_record_button        += 'application: "'+ application +'"})\'>';
+            append_record_button        += 'Append Recording '+ shortName[0] +'</button>';
+
+            $( "#video" ).append(controlDiv);
+            $( "#"+control_name).append(recordButton);
+            $( "#"+control_name).append(stop_record_button);
+            $( "#"+control_name).append(append_record_button);
+            $( "#"+control_name).append(playerDiv);
+            var createPlayer = WowzaPlayer.create(player_name, playerOptions);
+
+
+
+            // Check current elements and determine where the new one goes
+            counter++;
+        }
+
+        classListInit = function (){
+            var class_list = {};
+            console.log("Getting Class List");
+            $.getJSON (classlist, function(input){
+                class_list = input;
+            })
+            .success (function (){
+                $.each (class_list.Classes, function (class_item, class_details){
+                    
+                    if (this.active_flag == 1){
+                        class_menu_item  = '<a href"#" class="menu_item" id="' +this.class_code;
+                        class_menu_item += '">' +this.class_name+ '</a>';
+
+                    }
+                    $("#class_menu").append(class_menu_item);
+                });
+            });
+        }
+
+        menuInit = function (streams){
+            // Import file with JSON data for lab
+            console.log ("Loading Lab List");
+            var lab_list = {};
+            $.getJSON (lablist, function (input){
+                lab_list = input;
+            })
+            .error (function(data){
+                console.log (data);
+            })
+            .success (function (){
+                console.log ("Building Lab Menu");
+                $.each (lab_list.Labs, function (lab, lab_details){
+                    item = '';
+                    // Filter status of labs when building the menu
+                    $.each (streams, function (name, status){
+                        console.log ("Stream Name from Wowza: "+name);
+                        // Labs which are connected (but not recording) are valid options
+                        if (name === lab_details.lab_stream_name && status === "connected"){
+                            item = '<a href"#" class="menu_item" id="' +lab_details.lab_label;
+                            item += '">' +lab_details.lab_friendly_name+ '</a>';
+                        } 
+
+                        // Labs which are disconnected are disabled
+                        if (name === lab_details.lab_stream_name && status === "disconnected"){
+                            item = '<a href"#" class="menu_item_disabled" id="' +lab_details.lab_label;
+                            item += '">' +lab_details.lab_friendly_name+ '</a>';
+                        } 
+                        // Labs which are recording are disabled
+                        if (name === lab_details.lab_stream_name && status === "recording"){
+                            item = '<a href"#" class="menu_item_recording" id="' +lab_details.lab_label;
+                            item += '">' +lab_details.lab_friendly_name+ '</a>';
+                        } 
+                    });
+                    // Add menu items for our labs
+                    console.log (item);
+                    $("#lab_menu").append (item);
+
+                    // Check if the lab is in a group
+                    
+                });
+            })
+            .error (function (){
+                console.log ("Unable to import " + lablist);
+            });
+
+            // Click listener for lab selection 
+            $(document).on ('click', '.lab_item_enabled', function() {
+                console.log (this.id)
+                var setStreamOptions = {};
+                setStreamOptions.recorder = this.id+".stream";
+                setStream (setStreamOptions);
+            });
+            // Check camera status
+            // Disable labs which are currently recording
+        }
+
+        pageUpdate = function (){
+            // Check camera status
+            var params = {};
+            params.requestType = 'checkRecord';
+            controlCamera (params).done (recordElementUpdate (streamInfo));
+            // Display recording session for active page
+
+        }
+
+        recordElementUpdate = function (streams){
+
+            // Update status for recording buttons
+            record_buttons = document.getElementsByClassName("recordButton");
+            $(record_buttons).each( function (id, rec_button){
+                $.each(streams, function (stream, status){
+                    matchable_stream = stream.split('.',1);
+                    matchable_id = matchable_stream +"_btn";
+                    matchable_control = matchable_stream +"_control";
+                    if ((matchable_id === rec_button.id) && (status === "connected")){
+                        setReadyButton(matchable_id, matchable_stream, matchable_control);
+                    } else if ((matchable_id === rec_button.id) && (status === "recording")){
+                        setRecordButton (matchable_id, matchable_stream, matchable_control);
+                    }
+                });
+            });
+        }
+
+        setRecordButton = function (button_id, matchable_stream, matchable_control){
+
+            // Set button and recorder window to red
+            $("#"+button_id).css("background-color", "#a5433e");
+            $("#"+button_id).html("Recording...");
+            $("#"+button_id+"_stop").show();
+
+            // Not working currently
+            $("#"+matchable_control).removeClass().addClass("control_recording");
+        }
+
+        setReadyButton = function (button_id, matchable_stream, matchable_control){
+            // Set button and recorder window to green
+            $("#"+button_id).css("background-color", "#93db81");
+            $("#"+button_id).html( matchable_stream +" available");
+            $("#"+button_id+"_stop").hide();
+
+            // Not working currently
+            $("#"+matchable_control).removeClass().addClass("control_available");
+        }
+
+        setAppendButton = function (button_id, matchable_stream, matchable_control){
+            // Enable/Disable append buttons
+        }
+
+        // listeners for userField
+        // change listener triggers an LDAP lookup
+        $("#userIDField").change (function() {
+            var ldapInfo = this.value;
+            if (!(/^[a-zA-Z0-9]+$/.test(ldapInfo))) {
+                alert (ldapInfo + "is an invalid username.");
+            } else {
+                return $.ajax({
+                url: 'lookup.php?SimID=' + ldapInfo,
+                type: 'POST'
+                })
+                .done (function (data){
+                    $("#realName").text(data);
+                    userName = ldapInfo;   
+                });
+            }
+        })
+        // click listener clear the form
+        .click (function() {
+            this.value='';
+        });
+
+        // initialzation triggers
+        streamParams["serverName"] = defServer;                    
+        streamParams["appName"] = application;
+        streamParams["vhostName"] = defVHost;
+        streamParams["instanceName"] = defInstance;
+        HTTPMethod = 'GET';
+        url  = "http://"+ hostName +":"+ defPort +"/v2/servers/"+ defServer +"/vhosts/";
+        url += defVHost +"/applications/"+ application +"/instances/"+ defInstance;
+        $.when (wowzaConnect (streamParams,url,HTTPMethod))
+        .done (function (data){
+            console.log ("Initial Wowza connection complete");
+            $.each (data.incomingStreams, function (results){
+                if (!(this.isRecordingSet) && this.isConnected){
+                    streamInfo[this.name] = "connected";
+                } 
+                else if (!(this.isConnected)){
+                    streamInfo[this.name] = "disconnected";
+                }
+            });
+            
+            $.each (data.recorders, function (){
+                streamInfo[this.recorderName] = "recording";
+            });
+            menuInit(streamInfo);
+        });
+        classListInit();
+        setInterval (pageUpdate, 5000);
+    });
+    
+    </script>
+</head>
+<body>
+
+     
+        <h2>Nursing Simlab Recording System</h2>  
+        <div id="menu">
+            <div class="main_menu_item" id="lab_menu">
+                <a href="#" class="main_menu_item">Labs</a>
+            </div>
+            <div class="main_menu_item" id="class_menu">
+                <a href="#" class="main_menu_item">Classes</a>
+            </div>
+            <div class="main_menu_item">
+                <a href="#" class="main_menu_item">Presets</a>
+            </div>
+            <div class="main_menu_item">
+                <form class="main_menu_item" id="userInfo" action="" method="GET" name="user">
+                        <label for="userName">Messiah Username</label>
+                        <input type="text" class="menu_input_form" name="userName" id="userIDField">
+                        <output name="realName" class="menu_input_form" id="realName"></output><br>
+                        
+                </form>
+            </div>
+        </div>
+                    
+        <br>
+
+
+        <div id="video">
+        </div>
+</body>

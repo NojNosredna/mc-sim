@@ -1,0 +1,93 @@
+{
+    "Labs": {
+        "simlabk014": {
+            "lab_friendly_name" : "Simlab K014",
+            "lab_stream_name"   : "simlabk014.stream",
+            "lab_label"         : "simlabk014",
+            "lab_parent"        : "",
+            "lab_parent_friendly_name"  : "",
+            "lab_group"         : ""
+        },
+        "simlabk005": {
+            "lab_friendly_name" : "Simlab K005",
+            "lab_stream_name"   : "simlabk005.stream",
+            "lab_label"         : "simlabk005",
+            "lab_parent"        : "",
+            "lab_parent_friendly_name"  : "",
+            "lab_group"         : ""
+        },
+        "simlabk012": {
+            "lab_friendly_name" : "Simlab K012",
+            "lab_stream_name"   : "simlabk012.stream",
+            "lab_label"         : "simlabk012",
+            "lab_parent"        : "",
+            "lab_parent_friendly_name"  : "",
+            "lab_group"         : ""
+        },
+        "simlabk106A": {
+            "lab_friendly_name" : "Simlab K106 - A",
+            "lab_stream_name"   : "simlabk106a.stream",
+            "lab_label"         : "simlabk106a",
+            "lab_parent"        : "",
+            "lab_parent_friendly_name"  : "",
+            "lab_group"         : ""
+        },
+        "simlabk106C": {
+            "lab_friendly_name" : "Simlab K106 - C",
+            "lab_stream_name"   : "simlabk106c.stream",
+            "lab_label"         : "simlabk106c",
+            "lab_parent"        : "",
+            "lab_parent_friendly_name"  : "",
+            "lab_group"         : ""
+        },
+        "simlabk106E": {
+            "lab_friendly_name" : "Simlab K106 - E",
+            "lab_stream_name"   : "simlabk106e.stream",
+            "lab_label"         : "simlabk106e",
+            "lab_parent"        : "",
+            "lab_parent_friendly_name"  : "",
+            "lab_group"         : ""
+        },
+        "simlabk004b_1": {
+            "lab_friendly_name" : "Mental Health Room",
+            "lab_stream_name"   : "simlabk004b_1.stream",
+            "lab_label"         : "simlabk004b_1",
+            "lab_parent"        : "",
+            "lab_parent_friendly_name"  : "",
+            "lab_group"         : "simlabk004b_grp"
+        },
+        "simlabk004b_2": {
+            "lab_friendly_name" : "Mental Health Room",
+            "lab_stream_name"   : "simlabk004b_2.stream",
+            "lab_label"         : "simlabk004b_2",
+            "lab_parent"        : "",
+            "lab_parent_friendly_name"  : "",
+            "lab_group"         : "simlabk004b_grp"
+        },
+        "simlabk004_lucy": {
+            "lab_friendly_name" : "Simlab K004 - Lucy",
+            "lab_stream_name"   : "simlabk004_lucy.stream",
+            "lab_label"         : "simlabk004_lucy",
+            "lab_parent"        : "simlab_k004_parent_id",
+            "lab_parent_friendly_name"  : "Simlab K004",
+            "lab_group"         : ""
+        },
+        "simlabk004_baby": {
+            "lab_friendly_name" : "Simlab K004 - Baby",
+            "lab_stream_name"   : "simlabk004_baby.stream",
+            "lab_label"         : "simlabk004_baby",
+            "lab_parent"        : "simlabk004_parent_id",
+            "lab_parent_friendly_name"  : "Simlab K004",
+            "lab_group"         : ""
+        },        
+        "simlabk004_junior": {
+            "lab_friendly_name" : "Simlab K004 - Junior",
+            "lab_stream_name"   : "simlabk004_junior.stream",
+            "lab_label"         : "simlabk004_junior",
+            "lab_parent"        : "simlabk004_parent_id",
+            "lab_parent_friendly_name"  : "Simlab K004",
+            "lab_group"         : ""
+        }
+        
+    }
+}

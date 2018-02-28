@@ -1,0 +1,167 @@
+body {
+    font-family: 'Lato', sans-serif;
+}
+.menu {
+    clear: both;
+
+    position: relative;
+    display: inline-block;
+}
+
+.main_menu_item, .menu_input_form {
+    display:inline-block;
+    float: left;
+    margin-right: 0px;
+    color: #f1f1f1;
+    text-decoration: none;
+    position: relative;
+    background-color: rgba(0,0,0,.8);
+    overflow: hidden;
+    z-index: 1;
+    min-width: 180px;
+}
+
+.main_menu_item:hover .menu_item {
+    color: #818181;
+    cursor: pointer !important;
+    display: block;
+}
+
+.menu_item {
+    display: none;
+}
+
+.main_menu_item:a {
+    display: block;
+}
+
+.lab_item_enabled {
+    padding: 4px;
+    text-decoration: none;
+    font-size: 32px;
+    color: #93db81;
+    display: block;
+
+}
+
+.lab_item_disconnected {
+    padding: 4px;
+    text-decoration: line-through;
+    font-size: 32px;
+    color: #818181;
+    display: block;
+
+}
+
+.lab_item_recording {
+    padding: 4px;
+    text-decoration: none;
+    font-size: 32px;
+    color: #a5433e;
+    display: block;
+
+}
+
+.menu_input_form{
+    color: #818181;
+    background-color: #f1f1f1;
+    overflow: scroll;
+    float: right;
+    min-width: 0px;
+}
+
+.player {
+    width:480px; 
+    height:360px;
+    padding:0 0 0 0;
+}
+
+.control {
+    float: left;
+    width: 480px;
+    height: 362px;
+    padding: 0px 0px 15px 0px;
+    border: #818181;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.control_recording {
+    float: left;
+    width: 480px;
+    height: 362px;
+    padding: 0px 0px 15px 0px;
+    border: #a5433e;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.control_available {
+    float: left;
+    width: 480px;
+    height: 362px;
+    padding: 0px 0px 15px 0px;
+    border: #93db81;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.recordButton .stop_record_button{
+    float: left;
+}
+
+.realName .infoForm {
+    float: left;
+}
+
+#video {
+    height: 800px;
+    width: 1100px;
+    border: #818181;
+    border-width: 1px;
+    overflow: hidden;
+}
+/*{
+    
+    .overlay {
+        height: 100%;
+        width: 0;
+        position: absolute;
+        z-index: 1;
+        top: 80px;
+        left: 0;
+        background-color: rgb(0,0,0);
+        background-color: rgba(0,0,0, 0.9);
+        overflow-x: hidden;
+        transition: top 0.5s;
+    }
+
+    .menu_content {
+        position: relative;
+        top: 15%;
+        width: 100%;
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .overlay .closebtn {
+        padding: 8px;
+        text-decoration: none;
+        font-size: 32px;
+        color: #818181;
+        display: block;
+        transition: 0.2s;
+    }
+
+    .overlay a:hover, .overlay a:focus {
+        color: #f1f1f1;
+    }
+
+    .overlay .closebtn {
+        position: absolute;
+        top: 20px;
+        right: 45px;
+        font-size: 60px;
+    }
+    
+}*/

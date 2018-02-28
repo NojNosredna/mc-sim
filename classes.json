@@ -1,0 +1,100 @@
+{
+    "Classes": {
+        "NURS203":{
+            "class_code"    : "NURS203",
+            "friendly_code" : "NURS 203",
+            "class_name"    : "Historical and Conceptual Basis for Nursing",
+            "active_flag"   : "1"
+        },
+        "NURS210":{
+            "class_code"    : "NURS210",
+            "friendly_code" : "NURS 210",
+            "class_name"    : "Health Assessment",
+            "active_flag"   : "1"
+        },
+        "NURS203":{
+            "class_code"    : "NURS211",
+            "friendly_code" : "NURS 211",
+            "class_name"    : "Foundations of Nursing Practice",
+            "active_flag"   : "1"
+        },
+        "NURS304":{
+            "class_code"    : "NURS304",
+            "friendly_code" : "NURS 304",
+            "class_name"    : "Pharmacology",
+            "active_flag"   : "1"
+        },
+        "NURS305":{
+            "class_code"    : "NURS305",
+            "friendly_code" : "NURS 305",
+            "class_name"    : "Nursing Research I",
+            "active_flag"   : "1"
+        },
+        "NURS310":{
+            "class_code"    : "NURS310",
+            "friendly_code" : "NURS 310",
+            "class_name"    : "Nursing Care of the Childbearing Family",
+            "active_flag"   : "1"
+        },
+        "NURS311":{
+            "class_code"    : "NURS311",
+            "friendly_code" : "NURS 311",
+            "class_name"    : "Nursing Care of Adults and Older Adults I",
+            "active_flag"   : "1"
+        },
+        "NURS312":{
+            "class_code"    : "NURS312",
+            "friendly_code" : "NURS 312",
+            "class_name"    : "Nursing Care of Adults and Older Adults II",
+            "active_flag"   : "1"
+        },
+        "NURS313":{
+            "class_code"    : "NURS313",
+            "friendly_code" : "NURS 313",
+            "class_name"    : "Nursing Care of Infants, Children, and Adolescents",
+            "active_flag"   : "1"
+        },
+        "NURS405":{
+            "class_code"    : "NURS405",
+            "friendly_code" : "NURS 405",
+            "class_name"    : "Nursing Research II",
+            "active_flag"   : "1"
+        },
+        "NURS410":{
+            "class_code"    : "NURS410",
+            "friendly_code" : "NURS 410",
+            "class_name"    : "Psychiatric/Mental Health Nursing",
+            "active_flag"   : "1"
+        },
+        "NURS411":{
+            "class_code"    : "NURS411",
+            "friendly_code" : "NURS 411",
+            "class_name"    : "Nursing Care of the Critically Ill",
+            "active_flag"   : "1"
+        },
+        "NURS412":{
+            "class_code"    : "NURS412",
+            "friendly_code" : "NURS 412",
+            "class_name"    : "Community Health Nursing",
+            "active_flag"   : "1"
+        },
+        "NURS413":{
+            "class_code"    : "NURS413",
+            "friendly_code" : "NURS 413",
+            "class_name"    : "Leadership in Nursing",
+            "active_flag"   : "1"
+        },
+        "NURS495":{
+            "class_code"    : "NURS495",
+            "friendly_code" : "NURS 495",
+            "class_name"    : "Senior Practicum",
+            "active_flag"   : "1"
+        },
+        "NURS496":{
+            "class_code"    : "NURS496",
+            "friendly_code" : "NURS 496",
+            "class_name"    : "Senior Seminar",
+            "active_flag"   : "1"
+        }      
+    }
+}
