@@ -14,20 +14,15 @@
 
     <script>
         $(function(){
-        var streamParams    = {};
-        var hostName        = 'simlab-nursing.messiah.edu';
-        var application     = 'Simlabs-Nursing';
-        var defServer       = '_defaultServer_';
-        var defInstance     = '_definst_';
-        var defVHost        = '_defaultVHost_';
-        var defPort         = 8087;
-        var outputPath      = '/usr/local/WowzaStreamingEngine/content';
-        var counter         = 0;
-        var userName        = '';
-        var result          = {};
-        var streamInfo      = {}; // Current list of streams and status from server
-        var lablist         = 'lablist.json';
-        var classlist       = 'classes.json';
+        var streamParams    = {}, result = {}, streamInfo = {}, 
+            hostName        = 'simlab-nursing.messiah.edu', 
+            application     = 'Simlabs-Nursing', defServer = '_defaultServer_',
+            defInstance     = '_definst_', defVHost = '_defaultVHost_',
+            defPort         = 8087, counter = 0, userName = '',
+            outputPath      = '/usr/local/WowzaStreamingEngine/content',
+            lablist         = 'lablist.json', classlist = 'classes.json',
+            active_recorder = '';
+
         controlCamera = function (params){
             // region check_params
             if (params.hostName === undefined){
@@ -78,7 +73,7 @@
                 streamParams["fileTemplate"] = "";
                 streamParams["segmentationType"] = "";
                 streamParams["fileFormat"] = "MP4";
-                streamParams["option"] = "";
+                streamParams["option"] = params.option;
                 streamParams.action = "streamrecorders";
                 HTTPMethod = 'POST'
                 url = "http://"+ params.hostName +":"+ params.port +"/v2/servers/"+ params.serverName;
@@ -86,12 +81,14 @@
                 url += "/instances/"+ params.instanceName + "/" + streamParams.action;
                 url += "/"+ params.recorder;
                 var progress = 1;
-                wowzaConnect (streamParams, url, HTTPMethod, progress).done(function(data){
+                wowzaConnect (streamParams, url, HTTPMethod, progress)
+                .done(function(data){
                     $("body").css("cursor","default");
                     if (data.message == "Recorder Created"){
                         // Update matching button
                         matchable_id = params.recorder.split('.',1) +"_btn";
                         setRecordButton(matchable_id);
+                        active_recorder = params.recorder;
                     }
                 });
                 
@@ -169,12 +166,26 @@
                     dataType: "json",   
                 })
                 .done (function(data){
-                });
-                
-
+                    active_recorder = '';
+                });  
             }
         }
 
+        // Working on Append Function JA 3/12
+        appendSession = function (appendParams){
+            controlCamera ({
+                requestType: 'stopRecord',
+                recorder: active_recorder,
+                application: application
+            })
+            .done (function(appendparams){
+                controlCamera ({
+                    requestType: 'startRecord',
+                    recorder: appendparams.recorder
+                })
+            })
+
+        }
         // Navigation window actions
         openNav = function() {
             document.getElementById("myNav").style.width = "40%";
@@ -257,9 +268,7 @@
             var append_record_button_id = record_button_id + '_append';
             var append_record_button     = '<button id="'+ append_record_button_id +'" ';
             append_record_button        += 'class="appendRecordButton"';
-            append_record_button        += 'onclick= \'controlCamera({recorder: "'+ setStreamOptions.recorder +'",';
-            append_record_button        += 'requestType: "appendRecord",';
-            append_record_button        += 'application: "'+ application +'"})\'>';
+            append_record_button        += 'onclick= \'appendSession({recorder: "'+ setStreamOptions.recorder +'"})\'>';
             append_record_button        += 'Append Recording '+ shortName[0] +'</button>';
 
             $( "#video" ).append(controlDiv);
@@ -313,18 +322,18 @@
                         console.log ("Stream Name from Wowza: "+name);
                         // Labs which are connected (but not recording) are valid options
                         if (name === lab_details.lab_stream_name && status === "connected"){
-                            item = '<a href"#" class="menu_item" id="' +lab_details.lab_label;
+                            item = '<a href"#" class="menu_item lab_item_enabled" id="' +lab_details.lab_label;
                             item += '">' +lab_details.lab_friendly_name+ '</a>';
                         } 
 
                         // Labs which are disconnected are disabled
                         if (name === lab_details.lab_stream_name && status === "disconnected"){
-                            item = '<a href"#" class="menu_item_disabled" id="' +lab_details.lab_label;
+                            item = '<a href"#" class="menu_item lab_item_disconnected" id="' +lab_details.lab_label;
                             item += '">' +lab_details.lab_friendly_name+ '</a>';
                         } 
                         // Labs which are recording are disabled
                         if (name === lab_details.lab_stream_name && status === "recording"){
-                            item = '<a href"#" class="menu_item_recording" id="' +lab_details.lab_label;
+                            item = '<a href"#" class="menu_item lab_item_recording" id="' +lab_details.lab_label;
                             item += '">' +lab_details.lab_friendly_name+ '</a>';
                         } 
                     });
@@ -356,6 +365,7 @@
             var params = {};
             params.requestType = 'checkRecord';
             controlCamera (params).done (recordElementUpdate (streamInfo));
+            $("info_active_recorder").text ("Active recording session: "+ active_recorder);
             // Display recording session for active page
 
         }
@@ -451,7 +461,8 @@
             menuInit(streamInfo);
         });
         classListInit();
-        setInterval (pageUpdate, 5000);
+        // removed auto update for testing
+        // setInterval (pageUpdate, 5000);
     });
     
     </script>
@@ -460,6 +471,13 @@
 
      
         <h2>Nursing Simlab Recording System</h2>  
+        <div id="info_id" class="session_info">
+            Session Information <br>
+            <div id="info_active_recorder"></div>
+            <div id="info_update">
+                <button id="info_update_id" onclick="pageUpdate()">update page</button>
+            </div>
+        </div>
         <div id="menu">
             <div class="main_menu_item" id="lab_menu">
                 <a href="#" class="main_menu_item">Labs</a>
